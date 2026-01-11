@@ -92,9 +92,9 @@ vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,
 vim.opt.fillchars = {
   eob = " ",
   fold = " ",
-  foldopen = "",
+  foldopen = "-",
   foldsep = " ",
-  foldclose = "",
+  foldclose = "+",
   lastline = " ",
 }
 
