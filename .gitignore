@@ -1,0 +1,12 @@
+# Neovim
+nvim/.luarc.json
+nvim/lazy-lock.json
+
+# OS
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Local overrides
+.local/
