@@ -4,6 +4,12 @@ set -e
 
 DOTFILES_DIR="$HOME/dotfiles"
 
+# Use sudo only if not root
+SUDO=""
+if [ "$EUID" -ne 0 ]; then
+    SUDO="sudo"
+fi
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -51,19 +57,19 @@ install_packages() {
 
     case $pm in
         apt)
-            sudo apt update
-            sudo apt install -y zsh git curl unzip neovim ripgrep fd-find fzf
+            $SUDO apt update
+            $SUDO apt install -y zsh git curl unzip neovim ripgrep fd-find fzf
             # fd is named fd-find on Debian/Ubuntu, create symlink
             if [ ! -f /usr/bin/fd ] && [ -f /usr/bin/fdfind ]; then
-                sudo ln -sf /usr/bin/fdfind /usr/bin/fd
+                $SUDO ln -sf /usr/bin/fdfind /usr/bin/fd
             fi
             ;;
         dnf)
-            sudo dnf install -y zsh git curl unzip neovim ripgrep fd-find fzf
+            $SUDO dnf install -y zsh git curl unzip neovim ripgrep fd-find fzf
             ;;
         yum)
-            sudo yum install -y epel-release
-            sudo yum install -y zsh git curl unzip
+            $SUDO yum install -y epel-release
+            $SUDO yum install -y zsh git curl unzip
             # neovim, ripgrep, fd, fzf may need manual installation on older RHEL
             if ! command -v nvim &> /dev/null; then
                 print_warning "Neovim not available in yum, installing from GitHub releases..."
@@ -83,10 +89,10 @@ install_packages() {
             fi
             ;;
         pacman)
-            sudo pacman -Syu --noconfirm zsh git curl unzip neovim ripgrep fd fzf
+            $SUDO pacman -Syu --noconfirm zsh git curl unzip neovim ripgrep fd fzf
             ;;
         apk)
-            sudo apk add zsh git curl unzip neovim ripgrep fd fzf
+            $SUDO apk add zsh git curl unzip neovim ripgrep fd fzf
             ;;
         *)
             print_error "Unknown package manager. Please install manually: zsh git curl unzip neovim ripgrep fd fzf"
@@ -99,8 +105,8 @@ install_packages() {
 install_neovim_from_github() {
     local version="v0.10.0"
     curl -LO "https://github.com/neovim/neovim/releases/download/${version}/nvim-linux64.tar.gz"
-    sudo tar -C /usr/local -xzf nvim-linux64.tar.gz
-    sudo ln -sf /usr/local/nvim-linux64/bin/nvim /usr/local/bin/nvim
+    $SUDO tar -C /usr/local -xzf nvim-linux64.tar.gz
+    $SUDO ln -sf /usr/local/nvim-linux64/bin/nvim /usr/local/bin/nvim
     rm nvim-linux64.tar.gz
     print_success "Neovim installed from GitHub"
 }
@@ -109,7 +115,7 @@ install_ripgrep_from_github() {
     local version="14.1.0"
     curl -LO "https://github.com/BurntSushi/ripgrep/releases/download/${version}/ripgrep-${version}-x86_64-unknown-linux-musl.tar.gz"
     tar xzf "ripgrep-${version}-x86_64-unknown-linux-musl.tar.gz"
-    sudo mv "ripgrep-${version}-x86_64-unknown-linux-musl/rg" /usr/local/bin/
+    $SUDO mv "ripgrep-${version}-x86_64-unknown-linux-musl/rg" /usr/local/bin/
     rm -rf "ripgrep-${version}-x86_64-unknown-linux-musl" "ripgrep-${version}-x86_64-unknown-linux-musl.tar.gz"
     print_success "ripgrep installed from GitHub"
 }
@@ -118,7 +124,7 @@ install_fd_from_github() {
     local version="v10.1.0"
     curl -LO "https://github.com/sharkdp/fd/releases/download/${version}/fd-${version}-x86_64-unknown-linux-musl.tar.gz"
     tar xzf "fd-${version}-x86_64-unknown-linux-musl.tar.gz"
-    sudo mv "fd-${version}-x86_64-unknown-linux-musl/fd" /usr/local/bin/
+    $SUDO mv "fd-${version}-x86_64-unknown-linux-musl/fd" /usr/local/bin/
     rm -rf "fd-${version}-x86_64-unknown-linux-musl" "fd-${version}-x86_64-unknown-linux-musl.tar.gz"
     print_success "fd installed from GitHub"
 }
@@ -213,12 +219,6 @@ main() {
     echo ""
 
     print_info "Starting installation..."
-
-    # Check if running as root
-    if [ "$EUID" -eq 0 ]; then
-        print_error "Please do not run as root. The script will use sudo when needed."
-        exit 1
-    fi
 
     # Install system packages
     print_info "Installing system packages..."
