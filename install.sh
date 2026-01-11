@@ -105,7 +105,7 @@ install_packages() {
 
 # Install Neovim from GitHub releases (latest stable)
 install_neovim_from_github() {
-    local version="v0.10.3"
+    local version="v0.11.2"
     local current_version=""
 
     # Check if nvim exists and get version
