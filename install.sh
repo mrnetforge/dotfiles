@@ -131,10 +131,10 @@ install_neovim_from_github() {
     $SUDO rm -f /usr/local/bin/nvim
 
     # Download and install
-    curl -LO "https://github.com/neovim/neovim/releases/download/${version}/nvim-linux64.tar.gz"
-    $SUDO tar -C /usr/local -xzf nvim-linux64.tar.gz
-    $SUDO ln -sf /usr/local/nvim-linux64/bin/nvim /usr/local/bin/nvim
-    rm nvim-linux64.tar.gz
+    curl -LO "https://github.com/neovim/neovim/releases/download/${version}/nvim-linux-x86_64.tar.gz"
+    $SUDO tar -C /usr/local -xzf nvim-linux-x86_64.tar.gz
+    $SUDO ln -sf /usr/local/nvim-linux-x86_64/bin/nvim /usr/local/bin/nvim
+    rm nvim-linux-x86_64.tar.gz
 
     print_success "Neovim $version installed from GitHub"
 }
