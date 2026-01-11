@@ -58,11 +58,13 @@ install_packages() {
     case $pm in
         apt)
             $SUDO apt update
-            $SUDO apt install -y zsh git curl unzip neovim ripgrep fd-find fzf
+            $SUDO apt install -y zsh git curl unzip ripgrep fd-find fzf
             # fd is named fd-find on Debian/Ubuntu, create symlink
             if [ ! -f /usr/bin/fd ] && [ -f /usr/bin/fdfind ]; then
                 $SUDO ln -sf /usr/bin/fdfind /usr/bin/fd
             fi
+            # Install latest Neovim from GitHub (apt version is too old for LazyVim)
+            install_neovim_from_github
             ;;
         dnf)
             $SUDO dnf install -y zsh git curl unzip neovim ripgrep fd-find fzf
@@ -101,14 +103,40 @@ install_packages() {
     esac
 }
 
-# Fallback installations from GitHub releases
+# Install Neovim from GitHub releases (latest stable)
 install_neovim_from_github() {
-    local version="v0.10.0"
+    local version="v0.10.3"
+    local current_version=""
+
+    # Check if nvim exists and get version
+    if command -v nvim &> /dev/null; then
+        current_version=$(nvim --version | head -1 | grep -oP 'v\d+\.\d+\.\d+' || echo "")
+    fi
+
+    # Skip if already at target version
+    if [ "$current_version" = "$version" ]; then
+        print_warning "Neovim $version already installed, skipping..."
+        return
+    fi
+
+    print_info "Installing Neovim $version from GitHub..."
+
+    # Remove old apt neovim if exists
+    if dpkg -l neovim &> /dev/null 2>&1; then
+        $SUDO apt remove -y neovim neovim-runtime 2>/dev/null || true
+    fi
+
+    # Remove old installation
+    $SUDO rm -rf /usr/local/nvim-linux64
+    $SUDO rm -f /usr/local/bin/nvim
+
+    # Download and install
     curl -LO "https://github.com/neovim/neovim/releases/download/${version}/nvim-linux64.tar.gz"
     $SUDO tar -C /usr/local -xzf nvim-linux64.tar.gz
     $SUDO ln -sf /usr/local/nvim-linux64/bin/nvim /usr/local/bin/nvim
     rm nvim-linux64.tar.gz
-    print_success "Neovim installed from GitHub"
+
+    print_success "Neovim $version installed from GitHub"
 }
 
 install_ripgrep_from_github() {
