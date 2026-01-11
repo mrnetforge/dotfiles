@@ -48,3 +48,9 @@ tmux attach-session -t dev
 
 # Add local bin to PATH
 export PATH="$HOME/.local/bin:$PATH"
+
+# Quick dotfiles setup (run on remote server)
+dotfiles-install() {
+  git clone https://github.com/mrnetforge/dotfiles.git ~/dotfiles 2>/dev/null || (cd ~/dotfiles && git pull)
+  cd ~/dotfiles && ./install.sh
+}
